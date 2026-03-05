@@ -5,7 +5,7 @@
 Give Claude Code instant access to PISTRIK knowledge via RAG — instead of scanning full documents, it retrieves the most relevant chunks in milliseconds. Claude can answer compliance questions, look up API endpoints, and make informed design decisions without you searching docs manually.
 
 - **Semantic search** across web docs, OpenAPI spec, Postman collections, and your own notes
-- **API endpoint lookup** by keyword or path, with parameters and schemas
+- **[Official PISTRIK API specification](https://pistrikkoolitus.envir.ee/docs)** — endpoint lookup by keyword or path, with parameters and schemas
 - **One-command update** to re-fetch all sources and rebuild the knowledge base
 - Runs locally via MCP (Model Context Protocol) — no external APIs, no data leaves your machine
 - Developed for Claude Code, but should work with any MCP-compatible AI coding assistant
