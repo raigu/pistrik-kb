@@ -8,6 +8,7 @@ Give Claude Code instant access to PISTRIK knowledge via RAG — instead of scan
 - **API endpoint lookup** by keyword or path, with parameters and schemas
 - **One-command update** to re-fetch all sources and rebuild the knowledge base
 - Runs locally via MCP (Model Context Protocol) — no external APIs, no data leaves your machine
+- Developed for Claude Code, but should work with any MCP-compatible AI coding assistant
 
 ## Setup
 
