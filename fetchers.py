@@ -31,7 +31,7 @@ def discover_file_formats(links: list[str]) -> tuple[set[str], set[str]]:
             continue
         if ext in SUPPORTED_DOWNLOAD_EXTS:
             supported.add(ext)
-        elif ext in {".html", ".htm", ""}:
+        elif ext in {".html", ".htm", ".action", ".ee", ""}:
             continue
         else:
             unsupported.add(ext)
