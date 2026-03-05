@@ -61,6 +61,12 @@ Claude Code gets three tools automatically:
 
 Drop `.md` or `.txt` files into `sources/notes/`, then run `python ingest.py` (or use `pistrik_update()` from Claude Code).
 
+Examples of useful notes:
+- Custom business rules specific to your PISTRIK integration
+- Meeting notes from compliance or integration discussions
+- Observations about undocumented API behavior
+- Copy-pasted emails containing relevant integration details
+
 ## How It Works
 
 | Component | Purpose |
