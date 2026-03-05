@@ -3,3 +3,9 @@ __pycache__/
 *.pyc
 .venv/
 *.egg-info/
+SUMMARY.md
+sources/openapi/*.json
+sources/web-docs/*.md
+sources/web-docs/attachments/*
+sources/github-api-docs/*.json
+!sources/**/.gitkeep
