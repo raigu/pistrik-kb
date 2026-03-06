@@ -13,7 +13,11 @@ from parsers import parse_html
 logger = logging.getLogger(__name__)
 
 OPENAPI_URL = "https://pistrikkoolitus.envir.ee/docs/openapi.json"
-WEB_DOCS_URL = "https://keskkonnaportaal.ee/et/teemad/reaalajamajandus/jaatmevaldkond"
+WEB_DOCS_URLS = {
+    "jaatmevaldkond": "https://keskkonnaportaal.ee/et/teemad/reaalajamajandus/jaatmevaldkond",
+    "jaatmeinfosusteem-pistrik": "https://keskkonnaportaal.ee/et/jaatmeinfosusteem-pistrik",
+    "jaatmereform": "https://kliimaministeerium.ee/jaatmereform",
+}
 GITHUB_API_REPO = "kemitgituser/pistrik-api-documentation"
 GITHUB_RAW_BASE = f"https://raw.githubusercontent.com/{GITHUB_API_REPO}/main"
 
@@ -51,50 +55,64 @@ def fetch_openapi(
 
 
 def fetch_web_docs(
-    dest_dir: Path, url: str = WEB_DOCS_URL
+    dest_dir: Path, urls: dict[str, str] | None = None
 ) -> dict:
-    """Fetch web page + download linked documents. Returns report dict."""
+    """Fetch web pages + download linked documents. Returns report dict."""
+    if urls is None:
+        urls = WEB_DOCS_URLS
     dest_dir.mkdir(parents=True, exist_ok=True)
     attachments_dir = dest_dir / "attachments"
     attachments_dir.mkdir(exist_ok=True)
 
-    resp = requests.get(url, timeout=30)
-    resp.raise_for_status()
-    html = resp.text
+    pages_saved = []
+    all_downloaded = []
+    all_unsupported = set()
 
-    # Save page as markdown
-    md_content = parse_html(html)
-    (dest_dir / "jaatmevaldkond.md").write_text(md_content, encoding="utf-8")
+    for name, url in urls.items():
+        try:
+            resp = requests.get(url, timeout=30)
+            resp.raise_for_status()
+        except requests.RequestException as e:
+            logger.warning(f"Failed to fetch {name}: {e}")
+            continue
+        html = resp.text
 
-    # Find all links
-    soup = BeautifulSoup(html, "html.parser")
-    links = [a.get("href", "") for a in soup.find_all("a", href=True)]
-    full_links = [urljoin(url, link) for link in links]
+        # Save page as markdown
+        md_content = parse_html(html)
+        md_file = f"{name}.md"
+        (dest_dir / md_file).write_text(md_content, encoding="utf-8")
+        pages_saved.append(md_file)
+        logger.info(f"Saved: {md_file}")
 
-    # Classify formats
-    supported, unsupported = discover_file_formats(full_links)
+        # Find all links
+        soup = BeautifulSoup(html, "html.parser")
+        links = [a.get("href", "") for a in soup.find_all("a", href=True)]
+        full_links = [urljoin(url, link) for link in links]
 
-    # Download supported files
-    downloaded = []
-    for link in full_links:
-        ext = Path(urlparse(link).path).suffix.lower()
-        if ext in SUPPORTED_DOWNLOAD_EXTS:
-            try:
-                file_resp = requests.get(link, timeout=60)
-                file_resp.raise_for_status()
-                filename = Path(urlparse(link).path).name
-                dest = attachments_dir / filename
-                dest.write_bytes(file_resp.content)
-                downloaded.append(filename)
-                logger.info(f"Downloaded: {filename}")
-            except requests.RequestException as e:
-                logger.warning(f"Failed to download {link}: {e}")
+        # Classify formats
+        _, unsupported = discover_file_formats(full_links)
+        all_unsupported.update(unsupported)
+
+        # Download supported files
+        for link in full_links:
+            ext = Path(urlparse(link).path).suffix.lower()
+            if ext in SUPPORTED_DOWNLOAD_EXTS:
+                try:
+                    file_resp = requests.get(link, timeout=60)
+                    file_resp.raise_for_status()
+                    filename = Path(urlparse(link).path).name
+                    dest = attachments_dir / filename
+                    dest.write_bytes(file_resp.content)
+                    if filename not in all_downloaded:
+                        all_downloaded.append(filename)
+                    logger.info(f"Downloaded: {filename}")
+                except requests.RequestException as e:
+                    logger.warning(f"Failed to download {link}: {e}")
 
     return {
-        "page_saved": "jaatmevaldkond.md",
-        "downloaded": downloaded,
-        "supported_formats": sorted(supported),
-        "unsupported_formats": sorted(unsupported),
+        "pages_saved": pages_saved,
+        "downloaded": all_downloaded,
+        "unsupported_formats": sorted(all_unsupported),
     }
 
 

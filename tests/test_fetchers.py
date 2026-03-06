@@ -34,7 +34,7 @@ def test_fetch_web_docs_discovers_links(tmp_path):
     with patch("fetchers.requests.get") as mock_get:
         response = MagicMock(status_code=200, text=html, content=html.encode(), raise_for_status=lambda: None)
         mock_get.return_value = response
-        result = fetch_web_docs(dest_dir=tmp_path)
+        result = fetch_web_docs(dest_dir=tmp_path, urls={"test": "https://example.com"})
 
     assert "unsupported_formats" in result
     assert ".xlsx" in result["unsupported_formats"]

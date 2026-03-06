@@ -103,7 +103,7 @@ def generate_report(
 
     if web_docs:
         lines.append(f"## Web Docs")
-        lines.append(f"- Page saved: {web_docs.get('page_saved', 'N/A')}")
+        lines.append(f"- Pages saved: {', '.join(web_docs.get('pages_saved', []))}")
         lines.append(f"- Downloads: {', '.join(web_docs.get('downloaded', [])) or 'none'}")
         unsupported = web_docs.get("unsupported_formats", [])
         if unsupported:

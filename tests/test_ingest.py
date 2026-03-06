@@ -52,7 +52,7 @@ def test_generate_report():
     from ingest import generate_report
 
     report = generate_report(
-        web_docs={"downloaded": ["a.pdf"], "unsupported_formats": [".xlsx"]},
+        web_docs={"pages_saved": ["test.md"], "downloaded": ["a.pdf"], "unsupported_formats": [".xlsx"]},
         openapi_endpoints=5,
         github_files=["collection.json"],
         local_chunks=3,
